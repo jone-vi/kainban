@@ -1,0 +1,21 @@
+services:
+  codex-agent:
+    build:
+      context: ./agent/codex
+      dockerfile: Dockerfile
+    environment:
+      OPENAI_API_KEY_FILE: /run/secrets/openai_apikey
+    secrets:
+      - openai_apikey
+    volumes:
+      - workspace:/workspace
+    tty: true
+    stdin_open: true
+    restart: no
+
+secrets:
+  openai_apikey:
+    file: ./secrets/openai_apikey
+
+volumes:
+  workspace:

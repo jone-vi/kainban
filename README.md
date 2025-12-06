@@ -2,7 +2,7 @@
 
 ## Architecture
 - **Rust Backend (Axum + SQLx)**
-- **PostgreSQL Database (separate container)**
+- **MySQL Database (separate container)**
 - **Multiple MCP Agent Containers**
 - **Per-Agent Workspace Volume**
 - **DB-Backed Job Queue**
@@ -22,7 +22,7 @@
 
 ---
 
-## Database (PostgreSQL)
+## Database (MySQL)
 - Tables: **agents**, **jobs**, **tasks**, **job_logs**  
 - Persistent orchestration  
 - Atomic job assignment  

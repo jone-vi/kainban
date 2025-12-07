@@ -6,12 +6,12 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword        # dev only – move to secrets later
       MYSQL_DATABASE: kainban
-      MYSQL_USER: kaniban_user
+      MYSQL_USER: kainban_user
       MYSQL_PASSWORD: kainban_pass
     volumes:
       - db_data:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "3307:3306"
     networks:
       - backend-db
 
@@ -48,12 +48,26 @@ services:
     networks:
       - agent-backend
 
+  migrate:
+    image: rust:1.76
+    command: ["sh", "-c", "sqlx migrate run"]
+    volumes:
+      - ./backend:/app
+    working_dir: /app
+    environment:
+      DATABASE_URL: mysql://kainban_user:kainban_pass@db:3306/kainban
+    depends_on:
+      - db
+    networks:
+      - backend-db
+
 secrets:
   openai_apikey:
     file: ./secrets/openai_apikey
 
 volumes:
   workspace:
+  db_data:
 
 networks:
   backend-db:

@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "\n            UPDATE jobs\n            SET state = ?\n            WHERE id = ?\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "f71ee1801fb86ecd0b520a893fc2c5557e6daae3f2cfb9c0b42789a53e7bd93e"
+}

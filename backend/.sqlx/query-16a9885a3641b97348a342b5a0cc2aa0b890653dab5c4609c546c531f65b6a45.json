@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "\n            INSERT INTO agents (id, name, status, workspace_volume)\n            VALUES (?,?,?,?)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "16a9885a3641b97348a342b5a0cc2aa0b890653dab5c4609c546c531f65b6a45"
+}

@@ -48,24 +48,76 @@ impl Job {
         .execute(pool)
         .await?;
 
-        let job = sqlx::query_as!(
-            Job,
+        let job = Self::get_job(pool, id).await?;
+
+        Ok(job)
+    }
+
+    pub async fn get_job(pool: &MySqlPool, id: Uuid) -> anyhow::Result<Self> {
+        let job = sqlx::query_as::<_, Job>(
             r#"
-            SELECT
-                id as "id: Uuid",
-                task_text,
-                state as "state: JobState",
-                agent_id as "agent_id?: Uuid",
-                retries,
-                updated_at as "updated_at: NaiveDateTime"
+            SELECT *
             FROM jobs
             WHERE id = ?
-            "#,
-            id,
+            "#
         )
+        .bind(id)
         .fetch_one(pool)
         .await?;
 
         Ok(job)
+    }
+
+    pub async fn assign_next_job(pool: &MySqlPool, agent_id: Uuid) -> anyhow::Result<Option<Self>> {
+        // This reutrns a job. But there is no guarantee it is the one that just got assigned
+
+        let result = sqlx::query!(
+            r#"
+            UPDATE jobs 
+            SET 
+                state = 'Assigned',
+                agent_id = ?
+            WHERE state = 'Queued'
+            AND agent_id IS NULL
+            ORDER BY id ASC 
+            LIMIT 1
+            "#,
+            agent_id
+        ).execute(pool).await?;
+
+        if result.rows_affected() == 0 {
+            return Ok(None);
+        }
+
+        let job = sqlx::query_as::<_, Job>(
+            r#"
+            SELECT *
+            FROM jobs 
+            WHERE state = 'Assigned'
+            AND agent_id = ?
+            LIMIT 1
+            "#
+        )
+        .bind(agent_id)
+        .fetch_one(pool)
+        .await?;
+
+        Ok(Some(job))
+    }
+
+    pub async fn set_state(pool: &MySqlPool, id: Uuid, state: JobState) -> anyhow::Result<Self> {
+        sqlx::query!(
+            r#"
+            UPDATE jobs
+            SET state = ?
+            WHERE id = ?
+            "#,
+            state as JobState,
+            id
+        )
+        .execute(pool)
+        .await?;
+
+        Self::get_job(pool, id).await
     }
 }

@@ -35,16 +35,16 @@ impl Job {
         let id = Uuid::now_v7();
         let state = JobState::Queued;
 
-        sqlx::query!(
+        sqlx::query(
             r#"
             INSERT INTO jobs (id, task_text, state, retries)
             VALUES (?, ?, ?, ?)
             "#,
-            id,
-            new.task_text,
-            state as JobState,
-            0,
         )
+        .bind(id)
+        .bind(new.task_text)
+        .bind(state)
+        .bind(0)
         .execute(pool)
         .await?;
 
@@ -71,7 +71,7 @@ impl Job {
     pub async fn assign_next_job(pool: &MySqlPool, agent_id: Uuid) -> anyhow::Result<Option<Self>> {
         // This reutrns a job. But there is no guarantee it is the one that just got assigned
 
-        let result = sqlx::query!(
+        let result = sqlx::query(
             r#"
             UPDATE jobs 
             SET 
@@ -82,8 +82,10 @@ impl Job {
             ORDER BY id ASC 
             LIMIT 1
             "#,
-            agent_id
-        ).execute(pool).await?;
+        )
+        .bind(agent_id)
+        .execute(pool)
+        .await?;
 
         if result.rows_affected() == 0 {
             return Ok(None);
@@ -106,15 +108,15 @@ impl Job {
     }
 
     pub async fn set_state(pool: &MySqlPool, id: Uuid, state: JobState) -> anyhow::Result<Self> {
-        sqlx::query!(
+        sqlx::query(
             r#"
             UPDATE jobs
             SET state = ?
             WHERE id = ?
             "#,
-            state as JobState,
-            id
         )
+        .bind(state)
+        .bind(id)
         .execute(pool)
         .await?;
 

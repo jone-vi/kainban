@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "\n            UPDATE jobs \n            SET \n                state = 'Assigned',\n                agent_id = ?\n            WHERE state = 'Queued'\n            AND agent_id IS NULL\n            ORDER BY id ASC \n            LIMIT 1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "4ec2def63e3ce8ce925563965777de8218868067580d4d8d4fc68fe60a9a16a7"
+}

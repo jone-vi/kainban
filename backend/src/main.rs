@@ -5,7 +5,9 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use tokio::net::TcpListener;
 
 mod config;
+mod auth;
 mod db;
+mod token;
 mod models;
 mod routes;
 
